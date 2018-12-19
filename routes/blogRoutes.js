@@ -15,7 +15,7 @@ module.exports = app => {
 
   app.get('/api/blogs', requireLogin, async (req, res) => {
     const blogs = await Blog.find({ _user: req.user.id });
-
+    
     res.send(blogs);
   });
 
@@ -35,4 +35,30 @@ module.exports = app => {
       res.send(400, err);
     }
   });
+
+  app.get('/api/flushall', async(req, res) => {
+    const cache = require('../services/cache');
+    await cache.flush();
+    await cache.keys();
+    res.status(200).send('Flushed');
+  });
+
+  app.get('/api/keys', async(req, res) => {
+    const cache = require('../services/cache');
+    const keys = await cache.keys();
+    res.status(200).json(keys);
+  });
+
+  app.get('/api/cachetest', async(req, res) => {
+    const cache = require('../services/cache');
+    try {
+      // cache.set('Yoshino', 'Yorita');
+      cache.get('O').then(console.log);
+      cache.get('K').then(console.log);
+    
+      res.sendStatus(200);
+    } catch(error) {
+      console.log(error);
+    }
+  })
 };
